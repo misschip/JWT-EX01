@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true 
+      
+      
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/security?serverTimezone=Asia/Seoul
+    username: cos
+    password: cos1234
+    
+
+  jpa:
+    hibernate:
+      ddl-auto: update #create update none. model에 클래스에 맞춰 테이블 자동 생성. 처음에는 create 해놔야
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl # sql에 camel 표기법을 따르도록!
+    show-sql: true # sts 콘솔 화면에 sql 명령어를 보여줌
