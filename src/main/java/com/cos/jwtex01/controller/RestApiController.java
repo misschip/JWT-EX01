@@ -79,7 +79,8 @@ public class RestApiController {
 	 */
 	
 	/*
-	 @PostMapping("login") 단 메서드는 따로 안 만들어도
+	 @PostMapping("login") 단 메서드는 따로 안 만들어도 JwtAuthenticationFilter가 개입해서
+	 username, password를 파싱하고 로그인 처리를 한다.
 	 
 	 */
 	 
