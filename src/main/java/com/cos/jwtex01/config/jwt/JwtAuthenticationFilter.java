@@ -6,6 +6,7 @@ import java.util.Date;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -84,19 +85,37 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		
 		PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 		
+		// Base64로 인코딩. 이 결과물을 Header에 key Authorization, value는 Bearer ... 로 된 긴 문자열로 보내게 되는데 value에 해당하는 부분이 바로 아래에서 얻은 결과물임
 		String jwtToken = JWT.create()
 				.withSubject(principalDetails.getUsername()) 	// .withClaim("sub","이름")과 동일
-				.withExpiresAt(new Date(System.currentTimeMillis() + 864000000))	// 8640000 == 10일
+				.withExpiresAt(new Date(System.currentTimeMillis() + JwtProperties.EXPIRATION_TIME))	// 8640000 == 10일
 				.withClaim("id",principalDetails.getUser().getId())	// 등록되지 않은 클레임 등록 방식임
 				.withClaim("username",principalDetails.getUser().getUsername())
-				.sign(Algorithm.HMAC512("조익현"));	// "조익현" 문자열 값은 secret 값이므로 회사에서는 1주일에 한 번 정도 바꿔줘야 하고. 실제로는 좀 더 긴 문자열을 사용!
+				.sign(Algorithm.HMAC512(JwtProperties.SECRET));	// "조익현" 문자열 값은 secret 값이므로 회사에서는 1주일에 한 번 정도 바꿔줘야 하고. 실제로는 좀 더 긴 문자열을 사용!
 													// 이게 털리면 끝!
 		
-		response.addHeader("Authorization", "Bearer " + jwtToken);
+		response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + jwtToken);	// Authorization : Bearer ....
+		
+		/* 쿠키에 담을 경우
+		response.addHeader("set-cookies", JwtProperties.TOKEN_PREFIX + jwtToken);
+		Cookie cookie = new Cookie("Authorization", jwtToken);
+		response.addCookie(cookie);
+		*/
+		
 		// super.successfulAuthentication(request, response, chain, authResult);
+		
 	}
 
 }
+
+/*
+ JwtToken
+ 
+ - 쿠키에 담아서 보낼 수 (setCookies, httpOnly)
+ - jsp나 react는 로컬 스토리지에 담을 수(10일짜리로 해놓으면 웹브라우저 껐다 다음날에도 바로 됨), 안드로이드는 셰어드 프레퍼런스에 저장 (jsp는 세션 스토리지에도 담을 수 있는 듯. 웹브라우저 껐다 켜면 다시 로그인 해야)
+   	요청시에 꺼내서 헤더에 담아 요청
+ 
+ */
 
 
 /*

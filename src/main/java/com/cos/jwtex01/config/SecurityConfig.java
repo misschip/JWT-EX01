@@ -11,11 +11,16 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.cos.jwtex01.config.jwt.JwtAuthenticationFilter;
+import com.cos.jwtex01.config.jwt.JwtAuthorizationFilter;
+import com.cos.jwtex01.repository.UserRepository;
 
 @Configuration
 @EnableWebSecurity	// 시큐리티 활성화 -> 기본 스프링 필터체인에 등록
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+	@Autowired
+	private UserRepository userRepository;
+	
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -32,17 +37,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		.formLogin().disable()
 		.httpBasic().disable()
 		.addFilter(new JwtAuthenticationFilter(authenticationManager()))
-		//.addFilter(null)
+		.addFilter(new JwtAuthorizationFilter(authenticationManager(),userRepository))
 		.authorizeRequests()
+		.antMatchers("/api/v1/user/**")
+		.access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 		.antMatchers("/api/v1/manager/**")
-			.access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+			.access("hasRole('ROLE_MANAGER') or hasRole('ROLE_ADMIN')")
 		.antMatchers("/api/v1/admin/**")
 			.access("hasRole('ROLE_ADMIN')")
 		.anyRequest().permitAll();
 		// .authenticated();	// 최소 로그인은 해야 나머지 페이지들도 갈 수 있도록
 		
-			
-		
+
 	}
 }
 

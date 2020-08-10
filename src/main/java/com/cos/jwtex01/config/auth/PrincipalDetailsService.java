@@ -20,6 +20,7 @@ public class PrincipalDetailsService implements UserDetailsService{
 		System.out.println("PrincipalDetailsService: 진입");
 		User user = userRepository.findByUsername(username);	// 유저를 못 찾은 경우는 UsernameNotFoundException 던져짐
 		
+		// session.setAttribute("loginUser", user);	// 이렇게 세션에 저장해도 된다고 쌤이(비공식)
 		return new PrincipalDetails(user);
 	}
 
