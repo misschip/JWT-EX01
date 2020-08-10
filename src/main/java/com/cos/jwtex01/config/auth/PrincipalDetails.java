@@ -30,7 +30,7 @@ public class PrincipalDetails implements UserDetails {
 		Collection<GrantedAuthority> authorities = new ArrayList<>();
 		
 		user.getRoleList().forEach(r -> {
-			authorities.add(()-> r);
+			authorities.add(()-> r);	// add 안에 매개값은 GrantedAuthority 인터페이스를 구현한 객체임
 		});
 		
 		return authorities;
